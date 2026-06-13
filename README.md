@@ -1,6 +1,6 @@
 # Expression Cloner
 
-Adds an option to the right-click menu to clone Emojis and Stickers to your servers.
+Clone emojis and stickers to your servers, by doing `right-click` -> `clone emoji/sticker`.
 This is a port of the [Vencord](https://github.com/Vendicated/Vencord/blob/main/src/plugins/expressionCloner/index.tsx) plugin.
 
 ## Installation

@@ -25,6 +25,7 @@ module.exports = (meta) => {
         getGuildMaxStickerSlots: { firstId: 473145, filter: Filters.byStrings(".GuildFeatures.MORE_STICKERS)&&"), searchExports: true },
         uploadEmoji: { firstId: 554375, filter: Filters.byStrings(".GUILD_EMOJIS(", "EMOJI_UPLOAD_START"), searchExports: true },
         emojiAPI: { firstId: 690521, filter: Filters.byKeys("sanitizeEmojiName") },
+        restAPI: { firstId: 636537, filter: m => typeof m === "object" && m.del && m.put, searchExports: true },
         Endpoints: { firstId: 652215, filter: Filters.byKeys("MESSAGE_CROSSPOST"), searchExports: true },
         PermissionsBits: { firstId: 652215, filter: Filters.byKeys("CREATE_GUILD_EXPRESSIONS"), searchExports: true },
 
@@ -33,10 +34,7 @@ module.exports = (meta) => {
         Modal: { firstId: 189213, filter: Filters.byKeys("Modal") },
         TextInput: { firstId: 292666, filter: Filters.byStrings('"data-mana-component":"text-input"'), searchExports: true },
         GuildIcon: { firstId: 548118, filter: Filters.byStrings('"top",badgeStrokeColor:') },
-      }),
-      ...Webpack.getMangled(Filters.bySource(".failImmediatelyWhenRateLimited)"), {
-        restAPI: Filters.byKeys("get", "del")
-      }, { firstId: 636537 })
+      })
     })
 
     Logger.log(meta.slug, "Initialized");
@@ -258,7 +256,7 @@ module.exports = (meta) => {
     ClonerModal({ data, url }) {
       const [isPending, startTransition] = useTransition();
       const [emojiName, setEmojiName] = useState(data.name);
-      const [selectedGuildId, setSelectedGuildId] = useState(() => Stores.SelectedGuildStore.getGuildId());
+      const [selectedGuildId, setSelectedGuildId] = useState(null);
       const [error, setError] = useState(null);
 
       const handleNameChange = useCallback(name => {
