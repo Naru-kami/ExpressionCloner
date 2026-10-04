@@ -2,7 +2,7 @@
  * @name ExpressionCloner
  * @author Narukami
  * @description Clone Emotes and Stickers. Port of [Vencord/plugins/expressionCloner](https://github.com/Vendicated/Vencord/blob/main/src/plugins/expressionCloner/index.tsx)
- * @version 0.0.0
+ * @version 0.0.1
  * @source https://github.com/Naru-kami/ExpressionCloner
  */
 
@@ -20,7 +20,11 @@ module.exports = (meta) => {
     Object.assign(internals, {
       isInitialized: true,
       ...Webpack.getBulkKeyed({
-        modalAPI: { firstId: 192308, filter: Filters.bySource(".modalKey?") },
+        modalAPI: {
+          firstId: 192308, filter: Filters.bySource(".modalKey?"), map: {
+            openModalLazy: Filters.byStrings(".modalKey?")
+          }
+        },
         getGuildMaxEmojiSlots: { firstId: 473145, filter: Filters.byStrings(".premiumFeatures?.additionalEmojiSlots??0"), searchExports: true },
         getGuildMaxStickerSlots: { firstId: 473145, filter: Filters.byStrings(".GuildFeatures.MORE_STICKERS)&&"), searchExports: true },
         uploadEmoji: { firstId: 554375, filter: Filters.byStrings(".GUILD_EMOJIS(", "EMOJI_UPLOAD_START"), searchExports: true },
@@ -31,8 +35,12 @@ module.exports = (meta) => {
 
         FormSelect: { firstId: 691885, filter: Filters.byStrings("horizontalControlColumnWidth:`min("), searchExports: true },
         ManaButton: { firstId: 657718, filter: Filters.byStrings(".BUTTON_LOADING_STARTED_LABEL,"), searchExports: true },
-        Modal: { firstId: 189213, filter: Filters.byKeys("Modal") },
-        TextInput: { firstId: 292666, filter: Filters.byStrings('"data-mana-component":"text-input"'), searchExports: true },
+        Modal: {
+          firstId: 189213, filter: Filters.bySource("leadingLayout:", "actions:", ".message"), map: {
+            Modal: Filters.byStrings("leadingLayout:", "actions:", ".message")
+          }
+        },
+        TextInput: { firstId: 95477, filter: Filters.byStrings('"data-mana-component":"text-input"'), searchExports: true },
         GuildIcon: { firstId: 548118, filter: Filters.byStrings('"top",badgeStrokeColor:') },
       })
     })
@@ -233,8 +241,24 @@ module.exports = (meta) => {
         label: `Clone ${type}`,
         id: `Clone-${type}`,
         key: `Clone-${type}`,
+        leadingAccessory: {
+          type: "icon",
+          icon: ({ color, ...svgProps }) => jsx("svg", {
+            ...svgProps,
+            role: "img",
+            xmlns: "http://www.w3.org/2000/svg",
+            width: "24",
+            height: "24",
+            fill: "none",
+            viewBox: "0 0 24 24",
+            children: jsx("path", {
+              fill: color,
+              d: "M21.73 12H19A3 3 0 0116 9V6.27a3 3 0 01.88.61l4.25 4.24a3 3 0 01.6.88ZM6 18V10a4 4 0 014-4h4V9a5 5 0 005 5h3v4a4 4 0 01-4 4H10A4 4 0 016 18ZM3 16h.5a.5.5 0 00.5-.5V10a6 6 0 016-6h5.5a.5.5 0 00.5-.5V3A1 1 0 0015 2H10A8 8 0 002 10v5a1 1 0 001 1Z"
+            })
+          })
+        },
         action: () => {
-          internals.modalAPI?.openModalLazy(async () => {
+          internals.modalAPI?.openModalLazy?.(async () => {
             const res = await fetchData();
             const data = { expression: type, ...res };
             const url = Utils.getUrl(data, 128);
